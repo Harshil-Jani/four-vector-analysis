@@ -1,5 +1,7 @@
 #include<iostream>
 #include<cmath>
+#include<vector>
+#include<fstream>
 
 class Vector {
     private:
@@ -33,7 +35,9 @@ class FourVector: public Vector {
     private :
         double e;
     public:
-        FourVector(double _x, double _y, double _z, double _e):Vector(_x,_y,_z),e(_e){}
+        FourVector(double _x, double _y, double _z, double _e):Vector(_x,_y,_z){
+            e = _e;
+        }
         
         double e_vector_value(){
             return e;
@@ -45,11 +49,44 @@ class FourVector: public Vector {
         }
 };
 
+class Reader {
+    private :
+        std::string fileName;
+    
+    public :
+        Reader(std::string _fileName){
+            fileName = _fileName;
+        }
+
+        std::vector<FourVector> readFile(){
+            std::vector<FourVector> data;
+            std::ifstream infile(fileName);
+
+            if(!infile.is_open()){
+                std::cout<<"Could not open file\n";
+                return data;
+            }   
+
+            double x,y,z,e;
+            while(infile>>x>>y>>z>>e){
+                FourVector input(x,y,z,e);
+                data.push_back(input);
+            }
+            infile.close();
+            return data;
+        }
+};
+
 int main(){
-    Vector data1(1,2,3);
-    FourVector data2(1,2,3,4);
-    std::cout<<data1.magnitude()<<"\n";
-    std::cout<<data2.mass_of_vector()<<"\n";
+
     std::cout<<"Four Vector Analysis\n";
+    // Vector data1(1,2,3);
+    // FourVector data2(1,2,3,4);
+    // std::cout<<data1.magnitude()<<"\n";
+    // std::cout<<data2.mass_of_vector()<<"\n";
+
+    Reader reader("input.dat");
+    std::vector<FourVector> data3 = reader.readFile();
+    std::cout<<data3[100].e_vector_value()<<"\n";
     return 0;
 }
