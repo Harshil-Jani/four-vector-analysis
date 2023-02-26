@@ -106,33 +106,67 @@ class Output{
 
         // Getter function
         int getDistributionIndex(){
-            if(distribution == "Harshil"){
+            if(distribution == "pT"){
                 return 0;
-            }else if(distribution == "CERN"){
+            }else if(distribution == "pX"){
                 return 1;
+            }else if(distribution == "pY"){
+                return 2;
+            }else if(distribution == "pZ"){
+                return 3;
+            }else if(distribution == "energy"){
+                return 4;
+            }else if(distribution == "mass"){
+                return 5;
             }
             return -1;
         }
 
-        void distribution0(){
-            std::cout<<"This is alloted to Harshil's distribution\n";
+        // Functions for calculating individual distributions.
+        void distribution_pT(){
+            std::cout<<"This is alloted to pT distribution\n";
         }
-        void distribution1(){
-            std::cout<<"This is alloted to CERN's distribution\n";
+        void distribution_pX(){
+            std::cout<<"This is alloted to pX distribution\n";
+        }
+        void distribution_pY(){
+            std::cout<<"This is alloted to pY distribution\n";
+        }
+        void distribution_pZ(){
+            std::cout<<"This is alloted to pZ distribution\n";
+        }
+        void distribution_energy(){
+            std::cout<<"This is alloted to energy distribution\n";
+        }
+        void distribution_mass(){
+            std::cout<<"This is alloted to mass distribution\n";
         }
         void distribution_unavailable(){
             std::cout<<"The requested distribution is unavailable\n";
         }
+        
         // Histrogram function
         void histogram(){
             std::cout<<"Creating Histogram...\n";
             int distributionIndex = getDistributionIndex();
             switch(distributionIndex){
                 case 0:
-                    distribution0();
+                    distribution_pT();
                     break;
                 case 1:
-                    distribution1();
+                    distribution_pX();
+                    break;
+                case 2:
+                    distribution_pY();
+                    break;
+                case 3:
+                    distribution_pZ();
+                    break;
+                case 4:
+                    distribution_energy();
+                    break;
+                case 5:
+                    distribution_mass();
                     break;
                 default:
                     distribution_unavailable();
@@ -147,7 +181,7 @@ int main(){
     
     // Taking Input parameters
     std::string datafile = "input.dat";
-    std::string distribution = "CERN";
+    std::string distribution = "pT";
     int number_of_bins = 100;
     double xmin = 0;
     double xmax = 10;
