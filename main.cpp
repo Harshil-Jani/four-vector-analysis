@@ -3,6 +3,7 @@
 #include<vector>
 #include<fstream>
 
+// Vector class which can be useful for taking x,y,z and applying vector properties on them.
 class Vector {
     private:
         double x;
@@ -16,6 +17,7 @@ class Vector {
             z = _z;
         }
 
+        // Getter functions in case we need them. 
         double x_vector_value(){
             return x;
         }
@@ -26,29 +28,37 @@ class Vector {
             return z;
         }
 
+        // Calculate Magnitude of given vector.
         double magnitude(){
             return std::sqrt(x*x+y*y+z*z);
         }
 };
 
+// FourVector class which inherits the Vector class and adds energy value to it.
 class FourVector: public Vector {
     private :
         double e;
+
     public:
         FourVector(double _x, double _y, double _z, double _e):Vector(_x,_y,_z){
             e = _e;
         }
-        
+
+        // Getter function in case we need them.
         double e_vector_value(){
             return e;
         }
 
+        // Calculating the mass of given vector.
         double mass_of_vector(){
-            // TODO : Know what can be the correct formulation to find mass. As of now, I am writing simple calculations.
+            // TODO : Apply correct formula. This is just dummy implementation.
             return x_vector_value()+y_vector_value()+z_vector_value()+e_vector_value();
         }
 };
 
+/* Reader class which takes a fileName and reads the data from the file and 
+   interprets the data into FourVector datatype. 
+*/
 class Reader {
     private :
         std::string fileName;
@@ -77,16 +87,78 @@ class Reader {
         }
 };
 
+// Output class for performing required modifications and running simulations.
+class Output{
+    private :
+        std::vector<double> bins;
+        int total_bins;
+        double xmin;
+        double xmax;
+        std::string distribution;
+
+    public :
+        Output(std::vector<FourVector> &data, int _total_bins, double _xmin, double _xmax, std::string _distribution){
+            total_bins = _total_bins;
+            xmin = _xmin;
+            xmax = _xmax;
+            distribution = _distribution;
+        }
+
+        // Getter function
+        int getDistributionIndex(){
+            if(distribution == "Harshil"){
+                return 0;
+            }else if(distribution == "CERN"){
+                return 1;
+            }
+            return -1;
+        }
+
+        void distribution0(){
+            std::cout<<"This is alloted to Harshil's distribution\n";
+        }
+        void distribution1(){
+            std::cout<<"This is alloted to CERN's distribution\n";
+        }
+        void distribution_unavailable(){
+            std::cout<<"The requested distribution is unavailable\n";
+        }
+        // Histrogram function
+        void histogram(){
+            std::cout<<"Creating Histogram...\n";
+            int distributionIndex = getDistributionIndex();
+            switch(distributionIndex){
+                case 0:
+                    distribution0();
+                    break;
+                case 1:
+                    distribution1();
+                    break;
+                default:
+                    distribution_unavailable();
+            }
+            // TODO : From here complete the distribution formulae and write the X and Y values in output file.
+        }
+};
+
 int main(){
 
     std::cout<<"Four Vector Analysis\n";
-    // Vector data1(1,2,3);
-    // FourVector data2(1,2,3,4);
-    // std::cout<<data1.magnitude()<<"\n";
-    // std::cout<<data2.mass_of_vector()<<"\n";
+    
+    // Taking Input parameters
+    std::string datafile = "input.dat";
+    std::string distribution = "CERN";
+    int number_of_bins = 100;
+    double xmin = 0;
+    double xmax = 10;
 
-    Reader reader("input.dat");
-    std::vector<FourVector> data3 = reader.readFile();
-    std::cout<<data3[100].e_vector_value()<<"\n";
+    // Initialize the Reader class which will read the data from the input file.
+    Reader reader(datafile);
+    // A variable which will be a vector of Datatype FourVector stores the file content.
+    std::vector<FourVector> data = reader.readFile();
+    // An output class which performs computations to produce the 1D Histogram of given data.
+    Output output(data,100000,0,100,distribution);
+    // Calling out the output system for running Histogram simulation.
+    output.histogram();
     return 0;
 }
