@@ -191,7 +191,7 @@ int main(){
     // A variable which will be a vector of Datatype FourVector stores the file content.
     std::vector<FourVector> data = reader.readFile();
     // An output class which performs computations to produce the 1D Histogram of given data.
-    Output output(data,100000,0,100,distribution);
+    Output output(data,number_of_bins,xmin,xmax,distribution);
     // Calling out the output system for running Histogram simulation.
     output.histogram();
     return 0;
