@@ -51,8 +51,7 @@ class FourVector: public Vector {
 
         // Calculating the mass of given vector.
         double mass_of_vector(){
-            // TODO : Apply correct formula. This is just dummy implementation.
-            return x_vector_value()+y_vector_value()+z_vector_value()+e_vector_value();
+            return std::sqrt(e_vector_value()*e_vector_value()-((x_vector_value()*x_vector_value()-y_vector_value()*y_vector_value()-z_vector_value()*z_vector_value()))/3*10e8);
         }
 };
 
@@ -87,6 +86,20 @@ class Reader {
         }
 };
 
+class Writer {
+    public : 
+    void writeFile(std::vector<double> X,std::vector<double> Y) {
+            std::ofstream outfile("output.dat");
+            if(!outfile.is_open()){
+                std::cout<<"Could not open file\n";
+                return;
+            }   
+
+            for (int i=0; i<X.size(); i++) {
+                outfile << X[i] << " " <<Y[i] << std::endl;
+            }
+        }
+};
 // Output class for performing required modifications and running simulations.
 class Output{
     private :
@@ -95,6 +108,7 @@ class Output{
         int total_bins;
         double xmin;
         double xmax;
+        double bin_width;
         std::string distribution;
         std::vector<FourVector> data;
     public :
@@ -104,7 +118,7 @@ class Output{
             xmax = _xmax;
             distribution = _distribution;
             data = _data;
-            double bin_width = (xmax-xmin)/total_bins;
+            bin_width = (xmax-xmin)/total_bins;
             for (int i=0; i<total_bins; i++){
                 bins.push_back(xmin + i*bin_width);
                 frequency.push_back(0);
@@ -117,6 +131,38 @@ class Output{
             }
         }
 
+        // Functions for calculating individual distributions.
+        double distribution_pT(std::vector<FourVector>::iterator it){
+            double pX = it->x_vector_value();
+            double pY = it->y_vector_value();
+            double pZ = it->z_vector_value();
+            return std::sqrt(pX*pX + pY*pY + pZ*pZ);  
+        }
+        double distribution_pX(std::vector<FourVector>::iterator it){
+            double pX = it->x_vector_value();
+            return pX;
+        }
+        double distribution_pY(std::vector<FourVector>::iterator it){
+            double pY = it->y_vector_value();
+            return pY;
+        }
+        double distribution_pZ(std::vector<FourVector>::iterator it){
+            double pZ = it->z_vector_value();
+            return pZ;
+        }
+        double distribution_energy(std::vector<FourVector>::iterator it){
+            double pE = it->e_vector_value();
+            return pE;
+        }
+        double distribution_mass(std::vector<FourVector>::iterator it){
+                    double pM = it->mass_of_vector();
+                    return pM;
+        }
+        void distribution_unavailable(){
+            std::cout<<"The requested distribution is unavailable\n";
+            exit(1);
+        }
+        
         // Getter function
         int getDistributionIndex(){
             if(distribution == "pT"){
@@ -135,94 +181,54 @@ class Output{
             return -1;
         }
 
-        // Functions for calculating individual distributions.
-        void distribution_pT(){
-            std::cout<<"This is alloted to pT distribution\n";
-        }
-        void distribution_pX(){
-            std::cout<<"Calculating pX distribution...\n";
-            int distributionIndex = getDistributionIndex();
-            double bin_width = (xmax-xmin)/total_bins;
-            for(int i=0; i<total_bins-1; i++){
-                double bincenter = (bins[i]+bins[i+1])/2;
-                for (auto it = data.begin(); it != data.end(); it++){
-                    double px = it->x_vector_value();
-                    if(px>bincenter-bin_width/2 && px<=bincenter+bin_width/2){
-                        frequency[i]++;
-                    }
-                }
-                double probability = frequency[i] / (double)(data.size()*bin_width);
-                std::cout<<"X : "<<bincenter<<" Y : "<<probability<<"\n";
-            }
-        }
-        void distribution_pY(){
-            std::cout<<"Calculating pY distribution...\n";
-            int distributionIndex = getDistributionIndex();
-            double bin_width = (xmax-xmin)/total_bins;
-            for(int i=0; i<total_bins-1; i++){
-                double bincenter = (bins[i]+bins[i+1])/2;
-                for (auto it = data.begin(); it != data.end(); it++){
-                    double py = it->y_vector_value();
-                    if(py>bincenter-bin_width/2 && py<=bincenter+bin_width/2){
-                        frequency[i]++;
-                    }
-                }
-                double probability = frequency[i] / (double)(data.size()*bin_width);
-                std::cout<<"X : "<<bincenter<<" Y : "<<probability<<"\n";
-            }
-        }
-        void distribution_pZ(){
-            std::cout<<"Calculating pZ distribution...\n";
-            int distributionIndex = getDistributionIndex();
-            double bin_width = (xmax-xmin)/total_bins;
-            for(int i=0; i<total_bins-1; i++){
-                double bincenter = (bins[i]+bins[i+1])/2;
-                for (auto it = data.begin(); it != data.end(); it++){
-                    double pz = it->z_vector_value();
-                    if(pz>bincenter-bin_width/2 && pz<=bincenter+bin_width/2){
-                        frequency[i]++;
-                    }
-                }
-                double probability = frequency[i] / (double)(data.size()*bin_width);
-                std::cout<<"X : "<<bincenter<<" Y : "<<probability<<"\n";
-            }
-        }
-        void distribution_energy(){
-            std::cout<<"This is alloted to energy distribution\n";
-        }
-        void distribution_mass(){
-            std::cout<<"This is alloted to mass distribution\n";
-        }
-        void distribution_unavailable(){
-            std::cout<<"The requested distribution is unavailable\n";
-        }
-        
         // Histrogram function
         void histogram(){
             std::cout<<"Creating Histogram...\n";
+            // Indexing Distributions to get equivalent mapping parameter which could further be utilized in switch-case
             int distributionIndex = getDistributionIndex();
-            switch(distributionIndex){
-                case 0:
-                    distribution_pT();
-                    break;
-                case 1:
-                    distribution_pX();
-                    break;
-                case 2:
-                    distribution_pY();
-                    break;
-                case 3:
-                    distribution_pZ();
-                    break;
-                case 4:
-                    distribution_energy();
-                    break;
-                case 5:
-                    distribution_mass();
-                    break;
-                default:
-                    distribution_unavailable();
+            // Vectors to store X and Y axis values.
+            std::vector<double> X; // Bincenter based on distribution
+            std::vector<double> Y; // Probability
+            for(int i=0; i<total_bins; i++){
+                double bincenter = (bins[i]+bins[i+1])/2;
+                for (auto it = data.begin(); it != data.end(); it++){
+                    double p_distribution;
+                    switch(distributionIndex){
+                        case 0:
+                            p_distribution = distribution_pT(it); // For each iteration we get corresponding distribution quantity.
+                            break;
+                        case 1:
+                            p_distribution = distribution_pX(it);
+                            break;
+                        case 2:
+                            p_distribution = distribution_pY(it);
+                            break;
+                        case 3:
+                            p_distribution = distribution_pZ(it);
+                            break;
+                        case 4:
+                            p_distribution = distribution_energy(it);
+                            break;
+                        case 5:
+                            p_distribution = distribution_mass(it);
+                            break;
+                        default:
+                            distribution_unavailable();
+                    }   
+                    // Count the occurance for a specified distribtuion.
+                    if(p_distribution>bincenter-bin_width/2 && p_distribution<=bincenter+bin_width/2){
+                        frequency[i]++;
+                    }
+                }
+                // Finding probablity of occurance.
+                double probability = frequency[i] / (double)(data.size()*bin_width);
+                X.push_back(bincenter);
+                Y.push_back(probability);
             }
+            // Writing the output to a data file. 
+            Writer output;
+            output.writeFile(X,Y);
+            std::cout<<"Output has been written successfully into output.dat file\n";
         }
 };
 
