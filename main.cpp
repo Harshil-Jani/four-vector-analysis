@@ -91,17 +91,30 @@ class Reader {
 class Output{
     private :
         std::vector<double> bins;
+        std::vector<int> frequency;
         int total_bins;
         double xmin;
         double xmax;
         std::string distribution;
-
+        std::vector<FourVector> data;
     public :
-        Output(std::vector<FourVector> &data, int _total_bins, double _xmin, double _xmax, std::string _distribution){
+        Output(std::vector<FourVector> &_data, int _total_bins, double _xmin, double _xmax, std::string _distribution){
             total_bins = _total_bins;
             xmin = _xmin;
             xmax = _xmax;
             distribution = _distribution;
+            data = _data;
+            double bin_width = (xmax-xmin)/total_bins;
+            for (int i=0; i<total_bins; i++){
+                bins.push_back(xmin + i*bin_width);
+                frequency.push_back(0);
+            }
+            for (auto it = data.begin(); it != data.end(); it++){
+                double x = it->e_vector_value();
+                if(x>xmin && x<xmax){
+                    frequency[(x-xmin)/bin_width]++;
+                }
+            }
         }
 
         // Getter function
@@ -127,13 +140,52 @@ class Output{
             std::cout<<"This is alloted to pT distribution\n";
         }
         void distribution_pX(){
-            std::cout<<"This is alloted to pX distribution\n";
+            std::cout<<"Calculating pX distribution...\n";
+            int distributionIndex = getDistributionIndex();
+            double bin_width = (xmax-xmin)/total_bins;
+            for(int i=0; i<total_bins-1; i++){
+                double bincenter = (bins[i]+bins[i+1])/2;
+                for (auto it = data.begin(); it != data.end(); it++){
+                    double px = it->x_vector_value();
+                    if(px>bincenter-bin_width/2 && px<=bincenter+bin_width/2){
+                        frequency[i]++;
+                    }
+                }
+                double probability = frequency[i] / (double)(data.size()*bin_width);
+                std::cout<<"X : "<<bincenter<<" Y : "<<probability<<"\n";
+            }
         }
         void distribution_pY(){
-            std::cout<<"This is alloted to pY distribution\n";
+            std::cout<<"Calculating pY distribution...\n";
+            int distributionIndex = getDistributionIndex();
+            double bin_width = (xmax-xmin)/total_bins;
+            for(int i=0; i<total_bins-1; i++){
+                double bincenter = (bins[i]+bins[i+1])/2;
+                for (auto it = data.begin(); it != data.end(); it++){
+                    double py = it->y_vector_value();
+                    if(py>bincenter-bin_width/2 && py<=bincenter+bin_width/2){
+                        frequency[i]++;
+                    }
+                }
+                double probability = frequency[i] / (double)(data.size()*bin_width);
+                std::cout<<"X : "<<bincenter<<" Y : "<<probability<<"\n";
+            }
         }
         void distribution_pZ(){
-            std::cout<<"This is alloted to pZ distribution\n";
+            std::cout<<"Calculating pZ distribution...\n";
+            int distributionIndex = getDistributionIndex();
+            double bin_width = (xmax-xmin)/total_bins;
+            for(int i=0; i<total_bins-1; i++){
+                double bincenter = (bins[i]+bins[i+1])/2;
+                for (auto it = data.begin(); it != data.end(); it++){
+                    double pz = it->z_vector_value();
+                    if(pz>bincenter-bin_width/2 && pz<=bincenter+bin_width/2){
+                        frequency[i]++;
+                    }
+                }
+                double probability = frequency[i] / (double)(data.size()*bin_width);
+                std::cout<<"X : "<<bincenter<<" Y : "<<probability<<"\n";
+            }
         }
         void distribution_energy(){
             std::cout<<"This is alloted to energy distribution\n";
@@ -171,7 +223,6 @@ class Output{
                 default:
                     distribution_unavailable();
             }
-            // TODO : From here complete the distribution formulae and write the X and Y values in output file.
         }
 };
 
