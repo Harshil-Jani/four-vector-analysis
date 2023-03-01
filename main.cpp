@@ -180,11 +180,21 @@ int main(){
     std::cout<<"Four Vector Analysis\n";
     
     // Taking Input parameters
-    std::string datafile = "input.dat";
-    std::string distribution = "pT";
-    int number_of_bins = 100;
-    double xmin = 0;
-    double xmax = 10;
+    std::string datafile;
+    std::string distribution;
+    int number_of_bins;
+    double xmin;
+    double xmax;
+    std::cout<<"Enter data file name : ";
+    std::cin>>datafile;
+    std::cout<<"Enter distribution type : ";
+    std::cin>>distribution;
+    std::cout<<"Number of Bins : ";
+    std::cin>>number_of_bins;
+    std::cout<<"Enter X(min) for the histogram : ";
+    std::cin>>xmin;
+    std::cout<<"Enter X(max) for the histogram : ";
+    std::cin>>xmax;
 
     // Initialize the Reader class which will read the data from the input file.
     Reader reader(datafile);
